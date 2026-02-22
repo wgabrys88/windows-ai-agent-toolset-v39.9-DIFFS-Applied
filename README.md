@@ -1,3 +1,4 @@
+```
 # Stateless Vision-Loop Desktop Agent
 
 This repository implements a minimal agentic control loop for a Windows desktop driven by a vision-language model (VLM).
@@ -36,9 +37,8 @@ seeing its recent actions in the annotated image and narrating the next step in 
 
 One turn corresponds to one VLM response (JSON), one physical execution, one screenshot, one annotation, and one VLM call.
 
-### ASCII diagram (single turn):
+ASCII diagram (single turn):
 
-```
   +-------------------+
   | VLM (JSON output) |
   +---------+---------+
@@ -84,7 +84,6 @@ One turn corresponds to one VLM response (JSON), one physical execution, one scr
                 |
                 v
         next turn begins
-```
 
 ## Coordinate system (normalized 0..1000)
 
@@ -441,4 +440,4 @@ To rebuild identically:
      - draw labels
      - export annotated PNG (base64) and POST /annotated with seq
 3) Keep config in a single config.py module with the keys listed above.
-
+```
