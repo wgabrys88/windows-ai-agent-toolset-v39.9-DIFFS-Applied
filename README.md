@@ -442,4 +442,3 @@ To rebuild identically:
      - export annotated PNG (base64) and POST /annotated with seq
 3) Keep config in a single config.py module with the keys listed above.
 
-If you follow this document and mirror the endpoints, message formats, coordinate math, and disk layout toggle, you can reproduce the current codebase behavior.
