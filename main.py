@@ -418,18 +418,32 @@ def parse_vlm_json(raw: str) -> tuple[str, list[dict[str, Any]], list[dict[str, 
     return observation, bboxes, actions
 
 
-def format_user_payload(observation: str, annotated_b64: str) -> dict[str, Any]:
-    return {
-        "type": "text_and_image",
-        "text": observation,
-        "image_b64": annotated_b64,
-    }
+def _append_jsonl(path: Path, obj: dict[str, Any]) -> None:
+    try:
+        with path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(obj, ensure_ascii=False, separators=(",", ":")))
+            f.write("\n")
+    except Exception as e:
+        log.warning("append jsonl failed: %s", e)
 
 
 def save_turn_data(
     run_dir: Path, turn: int, observation: str,
     bboxes: list[dict[str, Any]], actions: list[dict[str, Any]], raw_b64: str,
 ) -> None:
+    layout = str(_cfg("LOG_LAYOUT", "turn_dirs")).lower()
+    if layout == "flat":
+        raw_name = f"turn_{turn:04d}_raw.png"
+        if raw_b64:
+            try:
+                (run_dir / raw_name).write_bytes(base64.b64decode(raw_b64))
+            except Exception as e:
+                log.warning("save raw png failed: %s", e)
+        _append_jsonl(
+            run_dir / "turns.jsonl",
+            {"turn": turn, "stage": "raw", "observation": observation, "bboxes": bboxes, "actions": actions, "raw_png": raw_name},
+        )
+        return
     td = run_dir / f"turn_{turn:04d}"
     td.mkdir(exist_ok=True)
     (td / "vlm_output.json").write_text(
@@ -445,12 +459,29 @@ def save_turn_data(
 
 
 def save_annotated(run_dir: Path, turn: int, annotated_b64: str) -> None:
+    layout = str(_cfg("LOG_LAYOUT", "turn_dirs")).lower()
+    if layout == "flat":
+        ann_name = f"turn_{turn:04d}_annotated.png"
+        try:
+            (run_dir / ann_name).write_bytes(base64.b64decode(annotated_b64))
+        except Exception as e:
+            log.warning("save annotated png failed: %s", e)
+        _append_jsonl(run_dir / "turns.jsonl", {"turn": turn, "stage": "annotated", "annotated_png": ann_name})
+        return
     td = run_dir / f"turn_{turn:04d}"
     td.mkdir(exist_ok=True)
     try:
         (td / "screenshot_annotated.png").write_bytes(base64.b64decode(annotated_b64))
     except Exception as e:
         log.warning("save annotated png failed: %s", e)
+
+
+def format_user_payload(observation: str, annotated_b64: str) -> dict[str, Any]:
+    return {
+        "type": "text_and_image",
+        "text": observation,
+        "image_b64": annotated_b64,
+    }
 
 
 def _move_to(x: int, y: int) -> None:
