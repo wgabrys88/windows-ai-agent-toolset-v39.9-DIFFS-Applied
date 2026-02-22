@@ -37,7 +37,7 @@ seeing its recent actions in the annotated image and narrating the next step in 
 One turn corresponds to one VLM response (JSON), one physical execution, one screenshot, one annotation, and one VLM call.
 
 ASCII diagram (single turn):
-
+```
   +-------------------+
   | VLM (JSON output) |
   +---------+---------+
@@ -83,7 +83,7 @@ ASCII diagram (single turn):
                 |
                 v
         next turn begins
-
+```
 
 ## Coordinate system (normalized 0..1000)
 
